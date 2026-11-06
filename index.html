@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>غرفة الكابستون</title>
+<style>
+*,::before,::after{box-sizing:border-box;border:0 solid #e2e8f0;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:system-ui,"Segoe UI",Tahoma,Arial,sans-serif;background:#eef2f6;color:#16202c;line-height:1.5}
+h1,h2{font-size:inherit;font-weight:inherit}
+button,input{font:inherit;color:inherit;background:transparent;cursor:pointer}
+input{cursor:text;background:#fff;min-width:0}
+button:disabled{opacity:.6}
+video{width:100%;height:100%;object-fit:cover;background:#0f1722}
+.msg{max-width:80%;word-break:break-word}
+.h-screen{height:100vh;height:100dvh}.h-full{height:100%}.w-full{width:100%}
+.flex{display:flex}.grid{display:grid}.hidden{display:none}
+.flex-col{flex-direction:column}.flex-wrap{flex-wrap:wrap}.flex-1{flex:1 1 0%}
+.items-center{align-items:center}.place-items-center{place-items:center}
+.mr-auto{margin-right:auto}.mb-1{margin-bottom:.25rem}
+.gap-2{gap:.5rem}.gap-3{gap:.75rem}
+.space-y-2>*+*{margin-top:.5rem}.space-y-3>*+*{margin-top:.75rem}.space-y-4>*+*{margin-top:1rem}
+.p-3{padding:.75rem}.p-4{padding:1rem}.p-6{padding:1.5rem}.p-8{padding:2rem}
+.px-2{padding-inline:.5rem}.px-3{padding-inline:.75rem}.px-4{padding-inline:1rem}
+.py-1{padding-block:.25rem}.py-2{padding-block:.5rem}.py-3{padding-block:.75rem}
+.bg-white{background:#fff}.bg-slate-100{background:#f1f5f9}.bg-slate-900{background:#0f172a}
+.bg-blue-600{background:#2563eb}.bg-red-600{background:#dc2626}
+.bg-black\/60{background:rgba(0,0,0,.6)}.bg-black\/50{background:rgba(0,0,0,.5)}
+.text-white{color:#fff}.text-slate-500{color:#64748b}.text-red-600{color:#dc2626}
+.text-xs{font-size:.75rem}.text-sm{font-size:.875rem}.text-lg{font-size:1.125rem}.text-2xl{font-size:1.5rem}
+.font-bold{font-weight:700}.font-semibold{font-weight:600}
+.rounded{border-radius:.25rem}.rounded-lg{border-radius:.5rem}.rounded-xl{border-radius:.75rem}.rounded-2xl{border-radius:1rem}.rounded-full{border-radius:9999px}
+.shadow{box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.border{border-width:1px}.border-b{border-bottom-width:1px}.border-t{border-top-width:1px}.border-dashed{border-style:dashed}
+.max-w-sm{max-width:24rem}.max-w-md{max-width:28rem}.max-h-40{max-height:10rem}
+.divide-y>*+*{border-top-width:1px}
+.min-h-0{min-height:0}.overflow-x-auto{overflow-x:auto}.overflow-y-auto{overflow-y:auto}.overflow-hidden{overflow:hidden}
+.whitespace-nowrap{white-space:nowrap}.underline{text-decoration:underline}.opacity-70{opacity:.7}
+.relative{position:relative}.absolute{position:absolute}.fixed{position:fixed}
+.inset-0{inset:0}.bottom-2{bottom:.5rem}.right-2{right:.5rem}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.auto-rows-fr{grid-auto-rows:minmax(0,1fr)}
+@media(min-width:768px){
+.md\:flex-row{flex-direction:row}.md\:flex-1{flex:1 1 0%}.md\:flex-none{flex:none}
+.md\:w-\[26rem\]{width:26rem}.md\:border-r{border-right-width:1px}}
+@media(min-width:1024px){.lg\:grid-cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body class="h-screen">
+
+<!-- تسجيل / دخول -->
+<div id="login" class="h-full grid place-items-center p-4">
+  <div class="bg-white rounded-2xl shadow p-8 w-full max-w-sm space-y-4">
+    <h1 class="text-2xl font-bold">غرفة الكابستون</h1>
+    <p class="text-sm text-slate-500">أول مرة: اكتب رقم هاتفك والكود اللي الأدمن اداهولك وهتتسجل تلقائياً. بعد كده هتفضل داخل على طول.</p>
+    <input id="phone" inputmode="numeric" placeholder="رقم الهاتف" class="w-full border rounded-lg p-3">
+    <input id="code" type="password" placeholder="الكود السري" class="w-full border rounded-lg p-3">
+    <button id="loginBtn" class="w-full bg-blue-600 text-white rounded-lg p-3 font-semibold">تسجيل / دخول</button>
+    <p id="err" class="text-sm text-red-600"></p>
+  </div>
+</div>
+
+<!-- التطبيق -->
+<div id="app" class="h-full hidden flex-col">
+  <header class="bg-white border-b px-4 py-3 flex flex-wrap items-center gap-3">
+    <b class="text-lg">غرفة الكابستون</b>
+    <span id="who" class="text-sm text-slate-500"></span>
+    <div class="mr-auto flex flex-wrap gap-2">
+      <button id="adminBtn" class="hidden px-3 py-2 rounded-lg border text-sm">الأعضاء</button>
+      <button id="joinBtn" class="px-3 py-2 rounded-lg bg-blue-600 text-white text-sm">ابدأ المكالمة</button>
+      <button id="shareBtn" class="hidden px-3 py-2 rounded-lg border text-sm">مشاركة الشاشة</button>
+      <button id="muteBtn" class="hidden px-3 py-2 rounded-lg border text-sm">كتم الصوت</button>
+      <button id="leaveBtn" class="hidden px-3 py-2 rounded-lg bg-red-600 text-white text-sm">خروج من المكالمة</button>
+      <button id="outBtn" class="px-3 py-2 rounded-lg border text-sm">تسجيل خروج</button>
+    </div>
+  </header>
+
+  <!-- الغرف -->
+  <nav id="rooms" class="bg-white border-b px-3 py-2 flex gap-2 overflow-x-auto items-center"></nav>
+
+  <main class="flex-1 min-h-0 flex flex-col md:flex-row">
+    <section id="stage" class="hidden md:flex-1 p-3 bg-slate-900">
+      <div id="grid" class="grid grid-cols-2 lg:grid-cols-3 gap-2 h-full auto-rows-fr w-full"></div>
+    </section>
+    <section class="flex flex-col flex-1 md:flex-none md:w-[26rem] min-h-0 bg-white md:border-r">
+      <div id="msgs" class="flex-1 overflow-y-auto p-3 space-y-2"></div>
+      <form id="sendForm" class="p-3 border-t flex gap-2">
+        <input id="text" autocomplete="off" placeholder="اكتب رسالة أو حط لينك مشروع..." class="flex-1 border rounded-lg p-3">
+        <button class="bg-blue-600 text-white rounded-lg px-4 font-semibold">ارسال</button>
+      </form>
+    </section>
+  </main>
+</div>
+
+<!-- لوحة الأدمن -->
+<div id="adminPanel" class="hidden fixed inset-0 bg-black/50 place-items-center p-4">
+  <div class="bg-white rounded-2xl p-6 w-full max-w-md space-y-3">
+    <h2 class="font-bold text-lg">إضافة عضو</h2>
+    <input id="aName" placeholder="الاسم" class="w-full border rounded-lg p-3">
+    <input id="aPhone" inputmode="numeric" placeholder="رقم الهاتف" class="w-full border rounded-lg p-3">
+    <input id="aCode" placeholder="الكود السري (6 على الأقل)" class="w-full border rounded-lg p-3">
+    <div class="flex gap-2">
+      <button id="aSave" class="flex-1 bg-blue-600 text-white rounded-lg p-3">حفظ</button>
+      <button id="aClose" class="flex-1 border rounded-lg p-3">إغلاق</button>
+    </div>
+    <p id="aMsg" class="text-sm"></p>
+    <div id="aList" class="text-sm max-h-40 overflow-y-auto divide-y"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, doc, getDoc, setDoc, addDoc, deleteDoc, getDocs, onSnapshot, query, orderBy, limit, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ===== 1) بيانات مشروعك من Firebase Console ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyC4NSQuTnJZ0M4diMJUnRH3BFBdPWHPLYI",
+  authDomain: "ahmed-95a63.firebaseapp.com",
+  projectId: "ahmed-95a63",
+  appId: "1:673307622077:web:94bd196d6ac1ba6a3115d4"
+};
+/* ===== 2) رقم الأدمن (رقمك انت) ===== */
+const ADMIN_PHONE = "01069437302";
+/* ===== 3) TURN اختياري لو الفيديو مش بيوصل على بعض الشبكات ===== */
+const ICE = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const digits = s => s.replace(/\D/g, "");
+const toEmail = p => digits(p) + "@capstone.app";
+const sha = async s => [...new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)))].map(b => b.toString(16).padStart(2, "0")).join("");
+const rp = (r, c) => collection(db, "rooms", r, c);
+
+let me = null, rid = null, roomList = [], registering = false, seeded = false, unsubMsgs = null, unsubRooms = null;
+
+/* ---------- تسجيل أول مرة / دخول ---------- */
+$("loginBtn").onclick = async () => {
+  const phone = digits($("phone").value), code = $("code").value, err = $("err");
+  err.textContent = "";
+  if (!phone || code.length < 6) { err.textContent = "اكتب الرقم والكود (6 على الأقل)."; return; }
+  $("loginBtn").disabled = true;
+  try {
+    try { await signInWithEmailAndPassword(auth, toEmail(phone), code); }
+    catch (e) {
+      if (e.code !== "auth/invalid-credential" && e.code !== "auth/user-not-found") throw e;
+      // أول مرة: سجّل الحساب وتحقق من الكود اللي الأدمن عمله
+      registering = true;
+      let cred;
+      try { cred = await createUserWithEmailAndPassword(auth, toEmail(phone), code); }
+      catch (e2) { registering = false; throw e2.code === "auth/email-already-in-use" ? { code: "wrong" } : e2; }
+      try { await setDoc(doc(db, "members", phone), { proof: await sha(phone + ":" + code) }); }
+      catch { await cred.user.delete().catch(() => {}); registering = false; throw { code: "bad" }; }
+      registering = false;
+      await init(cred.user);
+    }
+  } catch (e) {
+    err.textContent = e.code === "wrong" ? "الكود غلط." : e.code === "bad" ? "الرقم مش مضاف أو الكود غلط." : "حصل خطأ: " + (e.code || e.message);
+  }
+  $("loginBtn").disabled = false;
+};
+$("outBtn").onclick = async () => { await leaveCall(); signOut(auth); };
+onAuthStateChanged(auth, u => { if (!registering) init(u); });
+
+async function init(user) {
+  if (!user) {
+    me = null; rid = null; seeded = false;
+    unsubMsgs && unsubMsgs(); unsubRooms && unsubRooms();
+    $("app").classList.add("hidden"); $("app").classList.remove("flex"); $("login").classList.remove("hidden");
+    return;
+  }
+  const phone = user.email.split("@")[0], isAdmin = phone === ADMIN_PHONE;
+  const m = await getDoc(doc(db, "members", phone)).catch(() => null);
+  if (!isAdmin && !(m && m.exists())) { $("err").textContent = "رقمك مش مضاف. كلم الأدمن."; signOut(auth); return; }
+  const n = await getDoc(doc(db, "names", phone)).catch(() => null);
+  me = { uid: user.uid, phone, isAdmin, name: n && n.exists() ? n.data().name : "الأدمن" };
+  $("who").textContent = me.name;
+  $("adminBtn").classList.toggle("hidden", !isAdmin);
+  $("login").classList.add("hidden");
+  $("app").classList.remove("hidden"); $("app").classList.add("flex");
+  listenRooms();
+}
+
+/* ---------- الغرف ---------- */
+function listenRooms() {
+  unsubRooms = onSnapshot(query(collection(db, "rooms"), orderBy("created")), snap => {
+    roomList = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    if (!roomList.length && me.isAdmin && !seeded) { seeded = true; addDoc(collection(db, "rooms"), { name: "الغرفة العامة", created: serverTimestamp() }); }
+    if (!rid && roomList.length) selectRoom(roomList[0].id); else drawRooms();
+  });
+}
+function drawRooms() {
+  const nav = $("rooms"); nav.innerHTML = "";
+  roomList.forEach(r => {
+    const b = document.createElement("button");
+    b.textContent = r.name;
+    b.className = "px-4 py-2 rounded-full text-sm whitespace-nowrap " + (r.id === rid ? "bg-blue-600 text-white" : "bg-slate-100");
+    b.onclick = () => r.id !== rid && selectRoom(r.id);
+    nav.append(b);
+  });
+  if (me.isAdmin) {
+    const a = document.createElement("button");
+    a.textContent = "+ غرفة جديدة"; a.className = "px-4 py-2 rounded-full text-sm border border-dashed whitespace-nowrap";
+    a.onclick = async () => { const n = prompt("اسم الغرفة؟"); if (n && n.trim()) await addDoc(collection(db, "rooms"), { name: n.trim(), created: serverTimestamp() }); };
+    nav.append(a);
+  }
+}
+async function selectRoom(id) {
+  await leaveCall();
+  rid = id; drawRooms();
+  unsubMsgs && unsubMsgs();
+  unsubMsgs = onSnapshot(query(rp(rid, "messages"), orderBy("t", "desc"), limit(100)), snap => {
+    const box = $("msgs"); box.innerHTML = "";
+    [...snap.docs].reverse().forEach(d => {
+      const m = d.data(), mine = m.uid === me.uid;
+      const el = document.createElement("div");
+      el.className = "msg rounded-xl px-3 py-2 " + (mine ? "bg-blue-600 text-white mr-auto" : "bg-slate-100");
+      const n = document.createElement("div"); n.className = "text-xs opacity-70 mb-1"; n.textContent = m.name;
+      const t = document.createElement("div");
+      m.text.split(/(https?:\/\/\S+)/g).forEach(p => {
+        if (/^https?:\/\//.test(p)) { const a = document.createElement("a"); a.href = p; a.target = "_blank"; a.rel = "noopener"; a.className = "underline"; a.textContent = p; t.append(a); }
+        else t.append(p);
+      });
+      el.append(n, t); box.append(el);
+    });
+    box.scrollTop = box.scrollHeight;
+  });
+}
+$("sendForm").onsubmit = async e => {
+  e.preventDefault();
+  const text = $("text").value.trim(); if (!text || !rid) return;
+  $("text").value = "";
+  await addDoc(rp(rid, "messages"), { uid: me.uid, name: me.name, text, t: serverTimestamp() });
+};
+
+/* ---------- الأدمن: الأعضاء ---------- */
+$("adminBtn").onclick = () => { $("adminPanel").classList.remove("hidden"); $("adminPanel").classList.add("grid"); listMembers(); };
+$("aClose").onclick = () => { $("adminPanel").classList.add("hidden"); $("adminPanel").classList.remove("grid"); };
+async function listMembers() {
+  const [names, mem] = await Promise.all([getDocs(collection(db, "names")), getDocs(collection(db, "members"))]);
+  const done = new Set(mem.docs.map(d => d.id)), box = $("aList"); box.innerHTML = "";
+  names.forEach(d => {
+    const row = document.createElement("div"); row.className = "py-2 flex items-center gap-2";
+    row.innerHTML = '<span class="flex-1"></span><span class="text-xs text-slate-500"></span><button class="text-red-600 text-xs">حذف</button>';
+    row.children[0].textContent = d.data().name + " - " + d.id;
+    row.children[1].textContent = done.has(d.id) ? "مسجّل" : "لسه";
+    row.children[2].onclick = async () => {
+      if (!confirm("حذف العضو؟")) return;
+      await Promise.all(["invites", "names", "members"].map(c => deleteDoc(doc(db, c, d.id)).catch(() => {})));
+      listMembers();
+    };
+    box.append(row);
+  });
+}
+$("aSave").onclick = async () => {
+  const name = $("aName").value.trim(), phone = digits($("aPhone").value), code = $("aCode").value;
+  if (!name || !phone || code.length < 6) { $("aMsg").textContent = "كمّل البيانات (الكود 6 على الأقل)."; return; }
+  try {
+    await setDoc(doc(db, "invites", phone), { codeHash: await sha(phone + ":" + code) });
+    await setDoc(doc(db, "names", phone), { name });
+    $("aMsg").textContent = "تم. ابعتله الرقم والكود وهيسجل بيهم أول مرة.";
+    $("aName").value = $("aPhone").value = $("aCode").value = ""; listMembers();
+  } catch (e) { $("aMsg").textContent = "خطأ: " + e.code; }
+};
+
+/* ---------- الفيديو (WebRTC mesh) داخل الغرفة ---------- */
+let local = null, screen = null, pcs = {}, unsubSig = null, unsubPeers = null, inCall = false, cr = null;
+
+function tile(id, stream, name, muted) {
+  let t = $("t-" + id);
+  if (!t) {
+    t = document.createElement("div"); t.id = "t-" + id; t.className = "relative rounded-xl overflow-hidden";
+    t.innerHTML = '<video autoplay playsinline></video><span class="absolute bottom-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"></span>';
+    $("grid").append(t);
+  }
+  const v = t.querySelector("video"); v.srcObject = stream; v.muted = !!muted;
+  t.querySelector("span").textContent = name;
+}
+const sig = (to, type, data) => addDoc(rp(cr, "signals"), { from: me.uid, to, name: me.name, type, data: JSON.stringify(data) });
+
+function makePeer(id, name) {
+  const pc = new RTCPeerConnection(ICE); pc.pend = [];
+  local.getTracks().forEach(tr => pc.addTrack(tr, local));
+  pc.onicecandidate = e => e.candidate && sig(id, "ice", e.candidate.toJSON());
+  pc.ontrack = e => tile(id, e.streams[0], name || "عضو");
+  pc.onconnectionstatechange = () => { if (pc.connectionState === "failed") closePeer(id); };
+  pcs[id] = pc; return pc;
+}
+function closePeer(id) { pcs[id]?.close(); delete pcs[id]; $("t-" + id)?.remove(); }
+
+$("joinBtn").onclick = async () => {
+  if (!rid) return;
+  try { local = await navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 480 }, height: { ideal: 360 }, frameRate: { ideal: 15, max: 20 } }, audio: { echoCancellation: true, noiseSuppression: true } }); }
+  catch { alert("لازم تسمح بالكاميرا والمايك."); return; }
+  inCall = true; cr = rid;
+  $("stage").classList.remove("hidden"); $("stage").classList.add("flex");
+  $("joinBtn").classList.add("hidden");
+  ["shareBtn", "muteBtn", "leaveBtn"].forEach(i => $(i).classList.remove("hidden"));
+  tile("me", local, me.name + " (انت)", true);
+
+  (await getDocs(query(rp(cr, "signals"), where("to", "==", me.uid)))).forEach(d => deleteDoc(d.ref));
+
+  unsubSig = onSnapshot(query(rp(cr, "signals"), where("to", "==", me.uid)), s => s.docChanges().forEach(async c => {
+    if (c.type !== "added") return;
+    const m = c.doc.data(), data = JSON.parse(m.data); deleteDoc(c.doc.ref);
+    if (m.type === "offer") {
+      const pc = pcs[m.from] || makePeer(m.from, m.name);
+      await pc.setRemoteDescription(data);
+      pc.pend.forEach(x => pc.addIceCandidate(x)); pc.pend = [];
+      const ans = await pc.createAnswer(); await pc.setLocalDescription(ans);
+      sig(m.from, "answer", pc.localDescription.toJSON());
+    } else if (m.type === "answer") {
+      const pc = pcs[m.from]; if (!pc) return;
+      await pc.setRemoteDescription(data);
+      pc.pend.forEach(x => pc.addIceCandidate(x)); pc.pend = [];
+    } else if (m.type === "ice") {
+      const pc = pcs[m.from]; if (!pc) return;
+      pc.remoteDescription ? pc.addIceCandidate(data) : pc.pend.push(data);
+    }
+  }));
+  unsubPeers = onSnapshot(rp(cr, "peers"), s => s.docChanges().forEach(c => { if (c.type === "removed") closePeer(c.doc.id); }));
+
+  await setDoc(doc(db, "rooms", cr, "peers", me.uid), { name: me.name });
+  (await getDocs(rp(cr, "peers"))).forEach(async d => {
+    if (d.id === me.uid) return;
+    const pc = makePeer(d.id, d.data().name);
+    const off = await pc.createOffer(); await pc.setLocalDescription(off);
+    sig(d.id, "offer", pc.localDescription.toJSON());
+  });
+};
+
+$("muteBtn").onclick = () => {
+  const a = local.getAudioTracks()[0]; a.enabled = !a.enabled;
+  $("muteBtn").textContent = a.enabled ? "كتم الصوت" : "تشغيل الصوت";
+};
+$("shareBtn").onclick = async () => {
+  const cam = local.getVideoTracks()[0];
+  if (screen) { stopShare(cam); return; }
+  try { screen = await navigator.mediaDevices.getDisplayMedia({ video: true }); } catch { return; }
+  const st = screen.getVideoTracks()[0];
+  Object.values(pcs).forEach(pc => pc.getSenders().find(s => s.track?.kind === "video")?.replaceTrack(st));
+  tile("me", screen, me.name + " (شاشتك)", true);
+  $("shareBtn").textContent = "ايقاف المشاركة";
+  st.onended = () => stopShare(cam);
+};
+function stopShare(cam) {
+  screen?.getTracks().forEach(t => t.stop()); screen = null;
+  Object.values(pcs).forEach(pc => pc.getSenders().find(s => s.track?.kind === "video")?.replaceTrack(cam));
+  tile("me", local, me.name + " (انت)", true);
+  $("shareBtn").textContent = "مشاركة الشاشة";
+}
+async function leaveCall() {
+  if (!inCall) return; inCall = false;
+  unsubSig && unsubSig(); unsubPeers && unsubPeers();
+  Object.keys(pcs).forEach(closePeer);
+  local?.getTracks().forEach(t => t.stop()); screen?.getTracks().forEach(t => t.stop());
+  local = screen = null;
+  try { await deleteDoc(doc(db, "rooms", cr, "peers", me.uid)); } catch {}
+  $("grid").innerHTML = ""; $("stage").classList.add("hidden"); $("stage").classList.remove("flex");
+  $("joinBtn").classList.remove("hidden");
+  ["shareBtn", "muteBtn", "leaveBtn"].forEach(i => $(i).classList.add("hidden"));
+  $("shareBtn").textContent = "مشاركة الشاشة"; $("muteBtn").textContent = "كتم الصوت";
+}
+$("leaveBtn").onclick = leaveCall;
+addEventListener("beforeunload", () => { if (me && inCall) deleteDoc(doc(db, "rooms", cr, "peers", me.uid)); });
+</script>
+</body>
+</html>
